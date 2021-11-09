@@ -7,13 +7,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Spartan">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/meta/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/meta/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/meta/favicon-16x16.png">
+  <link rel="manifest" href="/meta/site.webmanifest">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+
   <title>Cellular Automata</title>
 </head>
 
 <script>
 
   // define constants
-  const maxIntervals = 150
   const updatingRules = {
     '111': 0,
     '110': 0,
@@ -72,7 +79,7 @@
     return nextLevel
   }
 
-  function getData() {
+  function getData(maxIntervals) {
     // define the grid object and the initial state
     grid = {}
     grid[0] = { 0: 1 }
@@ -85,7 +92,7 @@
     return grid
   }
 
-  function renderGrid({ grid, renderSection }) {
+  function renderGrid({ grid, renderSection, }) {
     // remove old grid info picture
     while (renderSection.firstChild) {
       renderSection.removeChild(renderSection.firstChild);
@@ -123,19 +130,49 @@
   // run functions to generate info for rule 30
   document.addEventListener("DOMContentLoaded", function () {
     const renderSection = document.getElementById('render-section')
-    var slider = document.getElementById("myRange");
-    var output = document.getElementById("demo");
-    // output.innerHTML = slider.value; // Display the default slider value
+    var numRowsSlider = document.getElementById("num-rows-slider");
+    var squareSizeSlider = document.getElementById("square-size-slider");
 
-    // Update the current slider value (each time you drag the slider handle)
-    slider.oninput = function () {
-      console.log(this.value)
-      output.innerHTML = this.value;
-    }
-    // get data
-    const grid = getData()
-    // render data
+    // get data for 150 rows and render it
+    let grid = getData(150)
     renderGrid({ grid, renderSection })
+
+    // Update the number of rows when slider value changes
+    numRowsSlider.addEventListener('change', (value) => {
+      grid = getData(numRowsSlider.value)
+      renderGrid({ grid, renderSection })
+
+      // set viewport to top center of triangle
+      const numSquaresWide = renderSection.childNodes[0].childNodes.length
+      renderSection.scrollTop = 0
+      renderSection.scrollLeft = numSquaresWide * 0.5 * squareSizeSlider.value - 0.5 * window.innerWidth
+    })
+
+    // Update the number of rows when slider value changes
+    squareSizeSlider.addEventListener('change', (value) => {
+
+      // get style sheet and loop over the selectors
+      var sheet = document.styleSheets[0];
+      Array.from(sheet.rules).forEach(rule => {
+
+        // update the row and column
+        if (rule.selectorText === '.row') {
+          rule.style.height = `${squareSizeSlider.value}px`
+          rule.style.minHeight = `${squareSizeSlider.value}px`
+        }
+        if (rule.selectorText === '.col') {
+          rule.style.width = `${squareSizeSlider.value}px`
+          rule.style.minWidth = `${squareSizeSlider.value}px`
+        }
+
+        // set viewport to top center of triangle
+        const numSquaresWide = renderSection.childNodes[0].childNodes.length
+        renderSection.scrollTop = 0
+        renderSection.scrollLeft = numSquaresWide * 0.5 * squareSizeSlider.value - 0.5 * window.innerWidth
+
+      })
+
+    })
 
   });
 
@@ -143,22 +180,23 @@
 
 
 <body>
-  <nav>
-    <div class="nav-center">
-      <h1 class="nav-header">Cellular Autamata</h1>
-      <div class="nav-controls">
-        <div class="slidecontainer">
-          <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
-          <p>number of rows</p>
-        </div>
-        <div class="slidecontainer">
-          <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
-          <p>square size</p>
-        </div>
-        <p>change rules</p>
-      </div>
+  <!-- <nav>
+    <div class="nav-center"> -->
+
+  <div class="nav-controls">
+    <h1 class="nav-header">Cellular Autamata</h1>
+    <div class="slidecontainer">
+      <input type="range" min="1" max="500" value="150" class="slider" id="num-rows-slider">
+      <p>number of rows</p>
     </div>
-  </nav>
+    <div class="slidecontainer">
+      <input type="range" min="1" max="100" value="5" class="slider" id="square-size-slider">
+      <p>square size</p>
+    </div>
+    <p class="change-rules-button">change rules</p>
+  </div>
+  <!-- </div>
+  </nav> -->
   <div class="content">
     <div class="render-section" id="render-section"></div>
 
