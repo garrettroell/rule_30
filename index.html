@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Spartan">
+  <title>Cellular Automata</title>
+</head>
+
+<script>
+
+  // define constants
+  const maxIntervals = 150
+  const updatingRules = {
+    '111': 0,
+    '110': 0,
+    '101': 0,
+    '100': 1,
+    '011': 1,
+    '010': 1,
+    '001': 1,
+    '000': 0,
+  }
+
+  // define functions
+  function getNextLevel(previousLevel) {
+
+    // get the keys in the next level
+    const previousLevelKeys = Object.keys(previousLevel)
+    const nextLevelKeys = [
+      (Math.min(...previousLevelKeys) - 1).toString(),
+      ...previousLevelKeys,
+      (Math.max(...previousLevelKeys) + 1).toString(), ,
+    ]
+
+    // loop over keys of the next level
+    let nextLevel = {}
+    nextLevelKeys.forEach(index => {
+
+      // create variable to hold the state of the three relevent inputs
+      let input = ''
+
+      // define previous index and use it to find its state in previous level
+      // if the index is not in the previous level it is set as 0
+      const previousIndex = (parseInt(index) - 1).toString()
+      if (previousLevelKeys.includes(previousIndex)) {
+        input += previousLevel[previousIndex]
+      } else {
+        input += '0'
+      }
+
+      if (previousLevelKeys.includes(index)) {
+        input += previousLevel[index]
+      } else {
+        input += '0'
+      }
+
+      const nextIndex = (parseInt(index) + 1).toString()
+      if (previousLevelKeys.includes(nextIndex)) {
+        input += previousLevel[nextIndex]
+      } else {
+        input += '0'
+      }
+
+      // the value at the index is set based the updating rules
+      nextLevel[index] = updatingRules[input]
+    })
+
+    return nextLevel
+  }
+
+  function getData() {
+    // define the grid object and the initial state
+    grid = {}
+    grid[0] = { 0: 1 }
+
+    // add levels using the previous level as the input 
+    for (var time = 1; time < maxIntervals; time += 1) {
+      grid[time] = getNextLevel(grid[time - 1])
+    }
+
+    return grid
+  }
+
+  function renderGrid({ grid, renderSection }) {
+    // remove old grid info picture
+    while (renderSection.firstChild) {
+      renderSection.removeChild(renderSection.firstChild);
+    }
+
+    // get info about size of the grid to render
+    const maxLevelIndex = Math.max(...Object.keys(grid))
+    const maxLevelKeys = Object.keys(grid[maxLevelIndex])
+    const firstCol = Math.min(...maxLevelKeys)
+
+    const height = maxLevelIndex
+    const width = maxLevelKeys
+
+    // loop over rows and columns to add HTML elements to the page
+    for (var rowIndex = 0; rowIndex < height; rowIndex++) {
+      const row = document.createElement('div');
+      row.classList.add('row')
+
+      for (var colIndex = firstCol; colIndex < -1 * firstCol; colIndex++) {
+        const col = document.createElement('div');
+        col.classList.add('col')
+
+        // check if the column has data, and if so has the value of 1 to determine to color it in
+        if (Object.keys(grid[rowIndex]).includes(colIndex.toString())) {
+          if (grid[rowIndex][colIndex.toString()] === 1) {
+            col.style.backgroundColor = 'grey'
+          }
+        }
+        row.append(col)
+      }
+      renderSection.append(row)
+    }
+  }
+
+  // run functions to generate info for rule 30
+  document.addEventListener("DOMContentLoaded", function () {
+    const renderSection = document.getElementById('render-section')
+    var slider = document.getElementById("myRange");
+    var output = document.getElementById("demo");
+    // output.innerHTML = slider.value; // Display the default slider value
+
+    // Update the current slider value (each time you drag the slider handle)
+    slider.oninput = function () {
+      console.log(this.value)
+      output.innerHTML = this.value;
+    }
+    // get data
+    const grid = getData()
+    // render data
+    renderGrid({ grid, renderSection })
+
+  });
+
+</script>
+
+
+<body>
+  <nav>
+    <div class="nav-center">
+      <h1 class="nav-header">Cellular Autamata</h1>
+      <div class="nav-controls">
+        <div class="slidecontainer">
+          <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+          <p>number of rows</p>
+        </div>
+        <div class="slidecontainer">
+          <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+          <p>square size</p>
+        </div>
+        <p>change rules</p>
+      </div>
+    </div>
+  </nav>
+  <div class="content">
+    <div class="render-section" id="render-section"></div>
+
+  </div>
+
+</body>
+
+</html>
