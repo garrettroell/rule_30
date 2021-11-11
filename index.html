@@ -141,11 +141,6 @@
       }
       renderSection.append(row)
     }
-
-    // remove filter on navControls
-    // navControls.style.filter = ''
-    // navControls.setAttribute("style", "")
-
   }
 
   // run functions to generate info for rule 30
@@ -160,6 +155,8 @@
     var span = document.getElementsByClassName("close")[0];
     var rules = document.getElementsByClassName("rule");
     var ruleNumber = document.getElementById("rule-number")
+    var ruleInput = document.getElementById("rule-input")
+    var ruleInputForm = document.getElementById("rule-input-form")
 
 
     // get data for 150 rows and render it
@@ -173,9 +170,6 @@
         navControls.classList.remove('blurred')
       })
     })
-
-
-
 
     // Update the number of rows when slider value changes
     numRowsSlider.addEventListener('change', (value) => {
@@ -273,6 +267,24 @@
         ruleNumber.innerText = updatingRulesToNumber(updatingRules)
       })
     })
+
+    ruleNumber.addEventListener('click', () => {
+      console.log('Test')
+      ruleNumber.style.display = 'none'
+      ruleInput.style.display = 'block'
+      ruleInput.focus()
+    })
+
+    ruleInputForm.addEventListener('submit', (e) => {
+      e.preventDefault()
+      ruleInput.blur()
+
+      ruleNumber.innerText = ruleInput.value
+      ruleInput.value = ''
+
+      ruleNumber.style.display = 'block'
+      ruleInput.style.display = 'none'
+    })
   });
 </script>
 
@@ -302,7 +314,10 @@
       <div class="modal-top-row">
         <div class="rule-number-title">
           <p>Rule: </p>
-          <p id="rule-number">30</p>
+          <p id="rule-number" class="rule-number">30</p>
+          <form id="rule-input-form">
+            <input type="number" id="rule-input" name="rule-input" class="rule-input" placeholder="1 - 255">
+          </form>
         </div>
 
         <p class="close">&times;</p>

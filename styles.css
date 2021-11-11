@@ -4,6 +4,16 @@
   font-family: "Spartan";
 }
 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 .nav-header {
   margin: 10px 10px;
   font-size: 20px;
@@ -157,6 +167,20 @@
   justify-content: space-between;
   align-items: center;
   /* border: 1px solid; */
+}
+
+.rule-number {
+  cursor: pointer;
+}
+
+.rule-input {
+  display: none;
+  border: none;
+  font-size: 16px;
+}
+
+.rule-input:focus {
+  outline: 0px solid;
 }
 
 /* The Close Button */
