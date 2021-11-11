@@ -32,6 +32,21 @@
     '000': 0,
   }
 
+  function updatingRulesToNumber(updatingRules) {
+    return updatingRules['111'] * 128 +
+      updatingRules['110'] * 64 +
+      updatingRules['101'] * 32 +
+      updatingRules['100'] * 16 +
+      updatingRules['011'] * 8 +
+      updatingRules['010'] * 4 +
+      updatingRules['001'] * 2 +
+      updatingRules['000'] * 1
+  }
+
+  function numberToUpdatingRule(number) {
+    return 'test'
+  }
+
   // define functions
   function getNextLevel(previousLevel) {
 
@@ -79,20 +94,21 @@
     return nextLevel
   }
 
-  function getData(maxIntervals) {
+  async function getData({ numRows, navControls }) {
+
     // define the grid object and the initial state
     grid = {}
     grid[0] = { 0: 1 }
 
     // add levels using the previous level as the input 
-    for (var time = 1; time < maxIntervals; time += 1) {
+    for (var time = 1; time < numRows; time += 1) {
       grid[time] = getNextLevel(grid[time - 1])
     }
 
     return grid
   }
 
-  function renderGrid({ grid, renderSection, }) {
+  async function renderGrid({ grid, renderSection, navControls }) {
     // remove old grid info picture
     while (renderSection.firstChild) {
       renderSection.removeChild(renderSection.firstChild);
@@ -125,22 +141,53 @@
       }
       renderSection.append(row)
     }
+
+    // remove filter on navControls
+    // navControls.style.filter = ''
+    // navControls.setAttribute("style", "")
+
   }
 
   // run functions to generate info for rule 30
   document.addEventListener("DOMContentLoaded", function () {
     const renderSection = document.getElementById('render-section')
+    const navControls = document.getElementById('nav-controls')
     var numRowsSlider = document.getElementById("num-rows-slider");
     var squareSizeSlider = document.getElementById("square-size-slider");
+    var changeRulesButton = document.getElementById("change-rules-button");
+    var ruleSetControls = document.getElementById("rule-set-controls")
+    var modal = document.getElementById("myModal");
+    var span = document.getElementsByClassName("close")[0];
+    var rules = document.getElementsByClassName("rule");
+    var ruleNumber = document.getElementById("rule-number")
+
 
     // get data for 150 rows and render it
-    let grid = getData(150)
-    renderGrid({ grid, renderSection })
+    let numRows = 150
+    let squareSize = '5px'
+    console.log('started')
+    navControls.classList.add('blurred')
+    getData({ numRows, navControls }).then(grid => {
+      renderGrid({ grid, renderSection, navControls }).then(() => {
+        console.log('done')
+        navControls.classList.remove('blurred')
+      })
+    })
+
+
+
 
     // Update the number of rows when slider value changes
     numRowsSlider.addEventListener('change', (value) => {
-      grid = getData(numRowsSlider.value)
-      renderGrid({ grid, renderSection })
+      numRows = numRowsSlider.value
+      console.log('started')
+      navControls.classList.add('blurred')
+      getData({ numRows, navControls }).then(grid => {
+        renderGrid({ grid, renderSection, navControls }).then(() => {
+          navControls.classList.remove('blurred')
+          console.log('done')
+        })
+      })
 
       // set viewport to top center of triangle
       const numSquaresWide = renderSection.childNodes[0].childNodes.length
@@ -151,39 +198,87 @@
     // Update the number of rows when slider value changes
     squareSizeSlider.addEventListener('change', (value) => {
 
+      squareSize = squareSizeSlider.value
+
       // get style sheet and loop over the selectors
       var sheet = document.styleSheets[0];
       Array.from(sheet.rules).forEach(rule => {
-
         // update the row and column
         if (rule.selectorText === '.row') {
-          rule.style.height = `${squareSizeSlider.value}px`
-          rule.style.minHeight = `${squareSizeSlider.value}px`
+          rule.style.height = `${squareSize}px`
+          rule.style.minHeight = `${squareSize}px`
         }
         if (rule.selectorText === '.col') {
-          rule.style.width = `${squareSizeSlider.value}px`
-          rule.style.minWidth = `${squareSizeSlider.value}px`
+          rule.style.width = `${squareSize}px`
+          rule.style.minWidth = `${squareSize}px`
         }
 
         // set viewport to top center of triangle
         const numSquaresWide = renderSection.childNodes[0].childNodes.length
         renderSection.scrollTop = 0
-        renderSection.scrollLeft = numSquaresWide * 0.5 * squareSizeSlider.value - 0.5 * window.innerWidth
-
+        renderSection.scrollLeft = numSquaresWide * 0.5 * squareSize - 0.5 * window.innerWidth
       })
-
+      getData({ numRows, navControls }).then(grid => {
+        renderGrid({ grid, renderSection }).then(() => {
+          navControls.classList.remove('blurred')
+        })
+      })
     })
 
-  });
+    changeRulesButton.addEventListener('click', () => {
+      modal.style.display = "block";
+    })
 
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+      modal.style.display = "none";
+      getData({ numRows, navControls }).then(grid => {
+        renderGrid({ grid, renderSection, navControls }).then(() => {
+          navControls.classList.remove('blurred')
+        })
+      })
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+        getData({ numRows, navControls }).then(grid => {
+          renderGrid({ grid, renderSection, navControls })
+        })
+      }
+    }
+
+
+    // add click behavior to the rules
+    Array.from(rules).forEach(rule => {
+      rule.addEventListener('click', () => {
+        // update rule value
+        const ruleValue = rule.childNodes[5]
+        ruleValue.innerText = ruleValue.innerText === "0" ? "1" : "0"
+
+        // update bottom square value
+        const bottomSquare = rule.childNodes[3].childNodes[3]
+        if (Array.from(bottomSquare.classList).includes('filled')) {
+          bottomSquare.classList.remove('filled')
+        } else {
+          bottomSquare.classList.add('filled')
+        }
+
+        // modify updatingRules object
+        const binaryValue = rule.childNodes[1].innerText
+        updatingRules[binaryValue] = updatingRules[binaryValue] === 0 ? 1 : 0
+
+        // update rule number
+        ruleNumber.innerText = updatingRulesToNumber(updatingRules)
+      })
+    })
+  });
 </script>
 
 
 <body>
-  <!-- <nav>
-    <div class="nav-center"> -->
-
-  <div class="nav-controls">
+  <div class="nav-controls" id="nav-controls">
     <h1 class="nav-header">Cellular Autamata</h1>
     <div class="slidecontainer">
       <input type="range" min="1" max="500" value="150" class="slider" id="num-rows-slider">
@@ -193,15 +288,134 @@
       <input type="range" min="1" max="100" value="5" class="slider" id="square-size-slider">
       <p>square size</p>
     </div>
-    <p class="change-rules-button">change rules</p>
+    <p class="change-rules-button" id="change-rules-button">change rules</p>
   </div>
-  <!-- </div>
-  </nav> -->
   <div class="content">
     <div class="render-section" id="render-section"></div>
-
   </div>
 
+  <!-- The Modal -->
+  <div id="myModal" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content">
+      <div class="modal-top-row">
+        <div class="rule-number-title">
+          <p>Rule: </p>
+          <p id="rule-number">30</p>
+        </div>
+
+        <p class="close">&times;</p>
+      </div>
+
+      <div class="rule-set">
+        <div class="rule">
+          <p class="binary-value">111</p>
+          <div class="triangle-diagram">
+            <div class="diagram-top-row">
+              <div class="diagram-square filled"></div>
+              <div class="diagram-square center-square filled"></div>
+              <div class="diagram-square filled"></div>
+            </div>
+            <div class="diagram-square bottom-square"></div>
+          </div>
+          <p class="rule-value">0</p>
+        </div>
+
+        <div class="rule">
+          <p class="binary-value">110</p>
+          <div class="triangle-diagram">
+            <div class="diagram-top-row">
+              <div class="diagram-square filled"></div>
+              <div class="diagram-square center-square filled"></div>
+              <div class="diagram-square"></div>
+            </div>
+            <div class="diagram-square bottom-square"></div>
+          </div>
+          <p class="rule-value">0</p>
+        </div>
+
+        <div class="rule">
+          <p class="binary-value">101</p>
+          <div class="triangle-diagram">
+            <div class="diagram-top-row">
+              <div class="diagram-square filled"></div>
+              <div class="diagram-square center-square"></div>
+              <div class="diagram-square filled"></div>
+            </div>
+            <div class="diagram-square bottom-square"></div>
+          </div>
+          <p class="rule-value">0</p>
+        </div>
+
+        <div class="rule">
+          <p class="binary-value">100</p>
+          <div class="triangle-diagram">
+            <div class="diagram-top-row">
+              <div class="diagram-square filled"></div>
+              <div class="diagram-square center-square"></div>
+              <div class="diagram-square"></div>
+            </div>
+            <div class="diagram-square bottom-square filled"></div>
+          </div>
+          <p class="rule-value">1</p>
+        </div>
+
+        <div class="rule">
+          <p class="binary-value">011</p>
+          <div class="triangle-diagram">
+            <div class="diagram-top-row">
+              <div class="diagram-square"></div>
+              <div class="diagram-square center-square filled"></div>
+              <div class="diagram-square filled"></div>
+            </div>
+            <div class="diagram-square bottom-square filled"></div>
+          </div>
+          <p class="rule-value">1</p>
+        </div>
+
+        <div class="rule">
+          <p class="binary-value">010</p>
+          <div class="triangle-diagram">
+            <div class="diagram-top-row">
+              <div class="diagram-square"></div>
+              <div class="diagram-square center-square filled"></div>
+              <div class="diagram-square"></div>
+            </div>
+            <div class="diagram-square bottom-square filled"></div>
+          </div>
+          <p class="rule-value">1</p>
+        </div>
+
+        <div class="rule">
+          <p class="binary-value">001</p>
+          <div class="triangle-diagram">
+            <div class="diagram-top-row">
+              <div class="diagram-square"></div>
+              <div class="diagram-square center-square"></div>
+              <div class="diagram-square filled"></div>
+            </div>
+            <div class="diagram-square bottom-square filled"></div>
+          </div>
+          <p class="rule-value">1</p>
+        </div>
+
+        <div class="rule">
+          <p class="binary-value">000</p>
+          <div class="triangle-diagram">
+            <div class="diagram-top-row">
+              <div class="diagram-square"></div>
+              <div class="diagram-square center-square"></div>
+              <div class="diagram-square"></div>
+            </div>
+            <div class="diagram-square bottom-square"></div>
+          </div>
+          <p class="rule-value">0</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </body>
 
 </html>

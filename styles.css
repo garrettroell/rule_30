@@ -4,21 +4,6 @@
   font-family: "Spartan";
 }
 
-nav {
-  height: 56px;
-  position: fixed;
-  left: 100px;
-}
-
-.nav-center {
-  max-width: 1500px;
-  height: 100%;
-  margin: auto;
-  display: flex;
-  align-items: center;
-  justify-content: left;
-}
-
 .nav-header {
   margin: 10px 10px;
   font-size: 20px;
@@ -27,7 +12,7 @@ nav {
 .nav-controls {
   position: fixed;
   top: 50px;
-  left: 100px;
+  left: 50px;
   width: 300px;
   height: 275px;
   display: flex;
@@ -39,6 +24,11 @@ nav {
   border-radius: 20px;
 }
 
+.blurred {
+  filter: blur(3px);
+  -webkit-filter: blur(3px);
+}
+
 .content {
   margin: auto;
   display: flex;
@@ -47,7 +37,7 @@ nav {
 }
 
 .render-section {
-  margin: 20px 0px;
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
   overflow: scroll;
@@ -77,11 +67,13 @@ nav {
   appearance: none;
   width: 100%; /* Full-width */
   height: 25px; /* Specified height */
-  background: #d3d3d3; /* Grey background */
+  /* background: #d3d3d3; Grey background */
   outline: none; /* Remove outline */
-  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  /* opacity: 0.7; Set transparency (for mouse-over effects on hover) */
   -webkit-transition: 0.2s; /* 0.2 seconds transition on hover */
   transition: opacity 0.2s;
+  border-radius: 12.5px;
+  border: 1px solid;
 }
 
 /* Mouse-over effects */
@@ -93,17 +85,23 @@ nav {
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none; /* Override default look */
   appearance: none;
-  width: 25px; /* Set a specific slider handle width */
-  height: 25px; /* Slider handle height */
-  background: #04aa6d; /* Green background */
+  width: 22px; /* Set a specific slider handle width */
+  height: 22px; /* Slider handle height */
+  background: honeydew;
   cursor: pointer; /* Cursor on hover */
+  border: 1px solid;
+  border-radius: 11px;
+  padding: 1.5px;
 }
 
 .slider::-moz-range-thumb {
   width: 25px; /* Set a specific slider handle width */
   height: 25px; /* Slider handle height */
-  background: #04aa6d; /* Green background */
+  background: honeydew;
   cursor: pointer; /* Cursor on hover */
+  border: 1px solid;
+  border-radius: 12.5px;
+  margin: 1.5px;
 }
 
 .change-rules-button {
@@ -115,4 +113,123 @@ nav {
 .change-rules-button:hover {
   background-color: honeydew;
   cursor: pointer;
+}
+
+.rule-set-controls {
+  opacity: 0;
+  width: 100%;
+  height: 60px;
+  background-color: khaki;
+  display: flex;
+}
+
+.rule {
+  width: 100%;
+  border: 1px solid;
+}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 800px; /* Could be more or less, depending on screen size */
+  border-radius: 5px;
+}
+
+.modal-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* border: 1px solid; */
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  /* float: right; */
+  font-size: 28px;
+  font-weight: bold;
+  /* background-color: honeydew; */
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.rule-set {
+  width: 100%;
+  height: 135px;
+  display: flex;
+  gap: 10px;
+}
+
+.rule {
+  width: 100%;
+  border: 1px solid;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.rule:hover {
+  background-color: honeydew;
+}
+
+.triangle-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.diagram-top-row {
+  display: flex;
+}
+
+.rule-number-title {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.diagram-square {
+  border: 1px solid;
+  height: 15px;
+  width: 15px;
+  background-color: white;
+}
+
+.center-square {
+  border: none;
+  border-top: 1px solid;
+}
+
+.bottom-square {
+  transform: translateY(-1px);
+}
+
+.filled {
+  background-color: lightgray;
 }
