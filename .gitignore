@@ -69,3 +69,5 @@ node_modules/
 404.html
 .firebaserc
 firebase.json
+
+.DS_Store
